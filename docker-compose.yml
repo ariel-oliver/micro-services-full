@@ -1,7 +1,8 @@
 version: '3'
 services:
 
-  rabbit:
+  rabbitmq:
+    hostname: rabbitmq
     image: "rabbitmq:3-management"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
@@ -9,9 +10,88 @@ services:
       RABBITMQ_DEFAULT_PASS: "rabbitmq"
       RABBITMQ_DEFAULT_VHOST: "/"
     ports:
-      - "15672:15672"
-      - "5672:5672"
+      - 15672:15672
+      - 5671:5671 
+      - 5672:5672
+      - 15671:15671
+      - 25672:25672
   redis:
     image: 'redis:latest'
     ports:
       - "6379:6379"
+
+  product:
+    image: "arieloliver/ms-product:v1"
+    ports:
+      - "8081:8081"
+
+  catalog:
+    image: "arieloliver/ms-catalog:v1"
+    environment:
+      PRODUCT_URL: "http://product:8081"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - product
+
+  checkout:
+    image: "arieloliver/ms-checkout:v1"
+    environment:
+      PRODUCT_URL: "http://product:8081"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_HOST: "rabbitmq"
+      RABBITMQ_DEFAULT_PORT: "5672"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    ports:
+      - "8082:8082"
+    depends_on:
+      - product
+      - rabbitmq
+
+  order-checkout:
+    image: "arieloliver/ms-order:v1"
+    environment:
+      RABBITMQ_SERVER: "rabbitmq"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_HOST: "rabbitmq"
+      RABBITMQ_DEFAULT_PORT: "5672"
+      RABBITMQ_DEFAULT_VHOST: "/"
+      REDIS_HOST: "redis"
+    depends_on:
+      - redis
+      - rabbitmq
+      - checkout
+      - product
+
+  order-payment:
+    image: "arieloliver/ms-order:v1"
+    environment:
+      RABBITMQ_SERVER: "rabbitmq"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_HOST: "rabbitmq"
+      RABBITMQ_DEFAULT_PORT: "5672"
+      RABBITMQ_DEFAULT_VHOST: "/"
+      REDIS_HOST: "redis"
+    depends_on:
+      - redis
+      - rabbitmq
+      - checkout
+      - product
+    command: ["order", "-opt", "payment"]
+
+  payment:
+    image: "arieloliver/ms-payment:v1"
+    environment:
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_HOST: "rabbitmq"
+      RABBITMQ_DEFAULT_PORT: "5672"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    depends_on:
+      - redis
+      - rabbitmq
+      - checkout
+      - product

@@ -19,14 +19,14 @@ type Products struct {
 	Products []Product `json:"products"`
 }
 
-var productsUrl string
+var productsURL string
 
 func init() {
-	productsUrl = os.Getenv("PRODUCT_URL")
+	productsURL = os.Getenv("PRODUCT_URL")
 }
 
 func loadPrducts() []Product {
-	response, err := http.Get(productsUrl + "/products")
+	response, err := http.Get(productsURL + "/products")
 	if err != nil {
 		fmt.Println("Erro de HTTP")
 	}
@@ -40,13 +40,13 @@ func loadPrducts() []Product {
 
 func ListProducts(w http.ResponseWriter, r *http.Request) {
 	products := loadPrducts()
-	t := template.Must(template.ParseFiles("templates/catalog.html"))
+	t := template.Must(template.ParseFiles("catalog.html"))
 	t.Execute(w, products)
 }
 
 func ShowProduct(w http.ResponseWriter, r *http.Request) {
 	productID := r.PathValue("id")
-	response, err := http.Get(productsUrl + "/product/" + productID)
+	response, err := http.Get(productsURL + "/product/" + productID)
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
@@ -55,7 +55,7 @@ func ShowProduct(w http.ResponseWriter, r *http.Request) {
 	var product Product
 	json.Unmarshal(data, &product)
 
-	t := template.Must(template.ParseFiles("templates/view.html"))
+	t := template.Must(template.ParseFiles("view.html"))
 	t.Execute(w, product)
 }
 

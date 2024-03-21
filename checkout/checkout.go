@@ -43,7 +43,7 @@ func displayCheckout(w http.ResponseWriter, r *http.Request) {
 	var product Product
 	json.Unmarshal(data, &product)
 
-	t := template.Must(template.ParseFiles("templates/checkout.html"))
+	t := template.Must(template.ParseFiles("checkout.html"))
 	t.Execute(w, product)
 }
 
