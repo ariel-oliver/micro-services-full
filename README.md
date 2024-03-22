@@ -40,11 +40,12 @@ Este guia irá orientá-lo sobre como executar um projeto usando Docker Compose.
    - `order_ex`
    - `payment_ex`
 
+    ![EXCHANGES OUTPUT](images/EXCHANGES.png)
 3. Faça o binding das exchanges criadas com as queues correspondentes:
    - `checkout_ex` com `checkout_queue`
    - `order_ex` com `order_queue`
    - `payment_ex` com `payment_queue`
-
+    ![QUEUES OUTPUT](images/QUEUES.png)
 ## Testar os Microsserviços
 
 1. Acesse a rota abaixo para listar todos os produtos disponíveis:
@@ -82,4 +83,6 @@ Este guia irá orientá-lo sobre como executar um projeto usando Docker Compose.
      ```bash
      GET {key}
      ```
-    Você verá duas chaves no Redis: uma com status "pendente" e outra com status "aprovado".
+Você verá duas chaves no Redis: uma com status "pendente" e outra com status "aprovado". Veja neste exemplo abaixo o output esperado.
+
+![REDIS OUTPUT](images/REDIS.png)
